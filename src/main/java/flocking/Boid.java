@@ -21,11 +21,12 @@ REMEMBAH: может быть несколько групп боидов, и к�
  @TODO Покурить мануалы по методу Верле
  @TODO Обнаружен странный баг: один из боидов часто начинает крутиться по спирали в центре, как только его подхватывает другой боид - все ок.
  */
-public class Boid extends Observable {
+public class Boid extends Observable implements Runnable{
     public final byte RANK;
     float defaultVelocity = 0.1f;
     BoidController controller;
     Vector currentPosition;
+    Tuple<Float, Float>[] behavior;
 
     public Vector getCurrentVelocity() {
         return currentVelocity;
@@ -40,13 +41,14 @@ public class Boid extends Observable {
     Color color;
     float m;
 
-    Boid(BoidController controller, Vector initPosition, Vector initVelocity, Color color, byte rank){
+    Boid(BoidController controller, Vector initPosition, Vector initVelocity, Color color, byte rank, Tuple<Float, Float>[] behavior){
         this.addObserver(Simulator.view);
         this.controller = controller;
         this.currentPosition = initPosition;
         this.currentVelocity = initVelocity;
         this.color = color;
         this.RANK = rank;
+        this.behavior = behavior;
     }
 
     ArrayList<Boid> getNeighbors(double r){
@@ -137,6 +139,24 @@ public class Boid extends Observable {
             result = Vector.mul(Vector.sub(controller.getCenter(), this.currentPosition), (this.currentPosition.length() - controller.getMaxRadius()) / controller.getCriticalRadius());
         }
         return result;
+    }
+
+    final void calculateNewPosition(){
+        Vector r1, r2, r3, r4, r5, r6, r7;
+        //@TODO проблема с движением боидов  к центру масс, при использовании боиды просто исчезают :/
+        r1 = Vector.mul(moveToLocalCenter(behavior[0].x), behavior[0].y);
+        //@TODO Допилить уклонение от объектов сцены, пока не работает
+        r2 = Vector.mul(keepDistance(behavior[1].x), behavior[1].y);
+        r3 = Vector.mul(keepVelocity(behavior[2].x), behavior[2].y);
+        r4 = Vector.mul(limitRadius(), behavior[3].y);
+        r5 = Vector.mul(dodgeNeighbors(behavior[4].x), behavior[4].y);
+        r6 = Vector.mul(dodgePredators(behavior[5].x), behavior[5].y);
+        r7 = Vector.mul(chasePrey(behavior[6].x), behavior[6].y);
+        currentVelocity = Vector.add(Vector.mul(currentVelocity, defaultVelocity / currentVelocity.length()), r1, r2, r3, r4, r5, r6, r7);
+        currentPosition = Vector.add(currentPosition, currentVelocity);
+        limitVelocity();
+        this.setChanged();
+        notifyObservers(this);
     }
 
     @SafeVarargs
@@ -241,5 +261,10 @@ public class Boid extends Observable {
         state.add(currentPosition);
         state.add(currentVelocity);
         return state;
+    }
+
+    @Override
+    public void run() {
+        calculateNewPosition();
     }
 }

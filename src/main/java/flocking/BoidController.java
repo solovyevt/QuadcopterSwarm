@@ -10,7 +10,7 @@ import java.util.Random;
 /**
  * Created by solovyevt on 14.11.15 14:10.
  */
-public class BoidController{
+public class BoidController {
 
     private float maxVelocity;
 
@@ -34,19 +34,19 @@ public class BoidController{
 
     void calculateNewPositions(float dt){
         for(int i = 0; i < numberOfBoids; i++){
-            boids.get(i).calculateNewPosition(boidPreset);
+            new Thread(boids.get(i)).start();
         }
         for(int i = numberOfBoids; i < boids.size(); i++){
-            boids.get(i).calculateNewPosition(predatorPreset);
+            new Thread(boids.get(i)).start();
         }
     }
 
     void initializeBoids(){
         for(int i = 0; i < numberOfBoids; i++){
-            boids.add(new Boid(this, randomSpawnPoint(), randomVelocity(), Color.GREEN, (byte) 0));
+            boids.add(new Boid(this, randomSpawnPoint(), randomVelocity(), Color.GREEN, (byte) 0, boidPreset));
         }
         for(int i = 0; i < numberOfPredators; i++){
-            boids.add(new Boid(this, randomSpawnPoint(), randomVelocity(), Color.RED, (byte) 1));
+            boids.add(new Boid(this, randomSpawnPoint(), randomVelocity(), Color.RED, (byte) 1, predatorPreset));
         }
     }
 
