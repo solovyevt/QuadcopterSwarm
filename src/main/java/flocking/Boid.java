@@ -8,6 +8,7 @@ import view.scene.Primitives;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Observable;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by solovyevt on 14.11.15 14:11.
@@ -142,19 +143,21 @@ public class Boid extends Observable implements Runnable{
     }
 
     final void calculateNewPosition(){
-        Vector r1, r2, r3, r4, r5, r6, r7;
-        //@TODO проблема с движением боидов  к центру масс, при использовании боиды просто исчезают :/
-        r1 = Vector.mul(moveToLocalCenter(behavior[0].x), behavior[0].y);
-        //@TODO Допилить уклонение от объектов сцены, пока не работает
-        r2 = Vector.mul(keepDistance(behavior[1].x), behavior[1].y);
-        r3 = Vector.mul(keepVelocity(behavior[2].x), behavior[2].y);
-        r4 = Vector.mul(limitRadius(), behavior[3].y);
-        r5 = Vector.mul(dodgeNeighbors(behavior[4].x), behavior[4].y);
-        r6 = Vector.mul(dodgePredators(behavior[5].x), behavior[5].y);
-        r7 = Vector.mul(chasePrey(behavior[6].x), behavior[6].y);
-        currentVelocity = Vector.add(Vector.mul(currentVelocity, defaultVelocity / currentVelocity.length()), r1, r2, r3, r4, r5, r6, r7);
-        currentPosition = Vector.add(currentPosition, currentVelocity);
-        limitVelocity();
+        CompletableFuture.runAsync(() -> {
+            Vector r1, r2, r3, r4, r5, r6, r7;
+            //@TODO проблема с движением боидов  к центру масс, при использовании боиды просто исчезают :/
+            r1 = Vector.mul(moveToLocalCenter(behavior[0].x), behavior[0].y);
+            //@TODO Допилить уклонение от объектов сцены, пока не работает
+            r2 = Vector.mul(keepDistance(behavior[1].x), behavior[1].y);
+            r3 = Vector.mul(keepVelocity(behavior[2].x), behavior[2].y);
+            r4 = Vector.mul(limitRadius(), behavior[3].y);
+            r5 = Vector.mul(dodgeNeighbors(behavior[4].x), behavior[4].y);
+            r6 = Vector.mul(dodgePredators(behavior[5].x), behavior[5].y);
+            r7 = Vector.mul(chasePrey(behavior[6].x), behavior[6].y);
+            currentVelocity = Vector.add(Vector.mul(currentVelocity, defaultVelocity / currentVelocity.length()), r1, r2, r3, r4, r5, r6, r7);
+            currentPosition = Vector.add(currentPosition, currentVelocity);
+            limitVelocity();
+        });
         this.setChanged();
         notifyObservers(this);
     }

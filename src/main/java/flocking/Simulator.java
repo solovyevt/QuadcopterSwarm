@@ -1,5 +1,7 @@
 package flocking;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
@@ -11,7 +13,7 @@ import view.scene.Shader;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class Simulator {
+public class Simulator extends java.util.Observable {
 
 	private Camera camera;
 	private Shader lightShader;
@@ -30,7 +32,8 @@ public class Simulator {
 
 		lastTime = System.currentTimeMillis();
 
-        controller = new BoidController(new Vector(0), 20f, 0.5f, 256, 32);
+        controller = new BoidController(new Vector(0), 20f, 0.5f, 64, 16);
+        addObserver(view);
 
 		while (!Display.isCloseRequested()) {
 			float dt = (System.currentTimeMillis()-lastTime)/1000f;
@@ -89,7 +92,7 @@ public class Simulator {
 		try {
 			Display.setDisplayMode(new DisplayMode(1024, 768));
 			Display.setVSyncEnabled(true);
-			Display.setTitle("SUPER CRAZY QUADCOPTER MANIAC DELUXE v.0");
+			Display.setTitle("SUPER CRAZY BOIDS MANIAC DELUXE v.0");
 			Display.create();
 		} catch (LWJGLException e) {
 			e.printStackTrace();
@@ -106,5 +109,4 @@ public class Simulator {
 		final Simulator sim = new Simulator();
 		sim.start();
 	}
-	
 }

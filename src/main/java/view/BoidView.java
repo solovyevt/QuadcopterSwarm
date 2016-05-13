@@ -21,7 +21,7 @@ public class BoidView implements Observer {
             render((Boid) arg);
         }
 
-        else if(arg instanceof ArrayList    ){
+        else if(arg instanceof ArrayList){
             render((ArrayList<Vector>) arg);
         }
     }

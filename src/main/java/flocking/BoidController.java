@@ -34,10 +34,12 @@ public class BoidController {
 
     void calculateNewPositions(float dt){
         for(int i = 0; i < numberOfBoids; i++){
-            new Thread(boids.get(i)).start();
+//            new Thread(boids.get(i)).start();
+            boids.get(i).calculateNewPosition();
         }
         for(int i = numberOfBoids; i < boids.size(); i++){
-            new Thread(boids.get(i)).start();
+//            new Thread(boids.get(i)).start();
+            boids.get(i).calculateNewPosition();
         }
     }
 
@@ -55,8 +57,7 @@ public class BoidController {
         float x = (random.nextFloat() * 2 * maxVelocity) - maxVelocity;
         float y = (random.nextFloat() * 2 * maxVelocity) - maxVelocity;
         float z = (random.nextFloat() * 2 * maxVelocity) - maxVelocity;
-        Vector result = new Vector(x, y, z);
-        return Vector.mul(result.normalize(), maxVelocity * random.nextFloat());
+        Vector result = new Vector(x, y, z);        return Vector.mul(result.normalize(), maxVelocity * random.nextFloat());
     }
 
     private Vector randomSpawnPoint(){
